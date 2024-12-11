@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilanzrechner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(51, 51, 51, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            background-color: #444;
+            color: #ffffff;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        input:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(68, 68, 68, 0.8);
+            border-radius: 5px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #result.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .bilanz-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .bilanz-row {
+            background-color: rgba(68, 68, 68, 0.6);
+            border-radius: 5px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+        .bilanz-row:hover {
+            background-color: rgba(85, 85, 85, 0.8);
+        }
+        .bilanz-cell {
+            padding: 10px;
+            text-align: left;
+        }
+        .bilanz-value {
+            text-align: right;
+            font-weight: bold;
+        }
+        .bilanz-total {
+            background-color: rgba(76, 175, 80, 0.6);
+        }
+        .subcategory {
+            padding-left: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bilanzrechner</h1>
+        <input type="number" id="sachanlagen" placeholder="Sachanlagen">
+        <input type="number" id="finanzanlagen" placeholder="Finanzanlagen">
+        <input type="number" id="vorraete" placeholder="Vorräte">
+        <input type="number" id="forderungen" placeholder="Forderungen">
+        <input type="number" id="bankguthaben" placeholder="Bankguthaben">
+        <input type="number" id="eigenkapital" placeholder="Eigenkapital">
+        <input type="number" id="rueckstellungen" placeholder="Rückstellungen">
+        <input type="number" id="verbindlichkeiten" placeholder="Verbindlichkeiten">
+        <button onclick="calculateBilanz()">Berechnen</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
+        }
+
+        function calculateBilanz() {
+            var sachanlagen = parseFloat(document.getElementById('sachanlagen').value) || 0;
+            var finanzanlagen = parseFloat(document.getElementById('finanzanlagen').value) || 0;
+            var vorraete = parseFloat(document.getElementById('vorraete').value) || 0;
+            var forderungen = parseFloat(document.getElementById('forderungen').value) || 0;
+            var bankguthaben = parseFloat(document.getElementById('bankguthaben').value) || 0;
+            var eigenkapital = parseFloat(document.getElementById('eigenkapital').value) || 0;
+            var rueckstellungen = parseFloat(document.getElementById('rueckstellungen').value) || 0;
+            var verbindlichkeiten = parseFloat(document.getElementById('verbindlichkeiten').value) || 0;
+
+            var anlagevermoegen = sachanlagen + finanzanlagen;
+            var umlaufvermoegen = vorraete + forderungen + bankguthaben;
+            var aktiva = anlagevermoegen + umlaufvermoegen;
+            var passiva = eigenkapital + rueckstellungen + verbindlichkeiten;
+            var difference = aktiva - passiva;
+
+            var resultHTML = `
+                <h2>Bilanz</h2>
+                <table class="bilanz-table">
+                    <tr class="bilanz-row">
+                        <td class="bilanz-cell">Anlagevermögen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(anlagevermoegen)}</td>
+                    </tr>
+                    <tr class="bilanz-row subcategory">
+                        <td class="bilanz-cell">Sachanlagen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(sachanlagen)}</td>
+                    </tr>
+                    <tr class="bilanz-row subcategory">
+                        <td class="bilanz-cell">Finanzanlagen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(finanzanlagen)}</td>
+                    </tr>
+                    <tr class="bilanz-row">
+                        <td class="bilanz-cell">Umlaufvermögen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(umlaufvermoegen)}</td>
+                    </tr>
+                    <tr class="bilanz-row subcategory">
+                        <td class="bilanz-cell">Vorräte</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(vorraete)}</td>
+                    </tr>
+                    <tr class="bilanz-row subcategory">
+                        <td class="bilanz-cell">Forderungen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(forderungen)}</td>
+                    </tr>
+                    <tr class="bilanz-row subcategory">
+                        <td class="bilanz-cell">Bankguthaben</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(bankguthaben)}</td>
+                    </tr>
+                    <tr class="bilanz-row bilanz-total">
+                        <td class="bilanz-cell">Aktiva Gesamt</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(aktiva)}</td>
+                    </tr>
+                    <tr class="bilanz-row">
+                        <td class="bilanz-cell">Eigenkapital</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(eigenkapital)}</td>
+                    </tr>
+                    <tr class="bilanz-row">
+                        <td class="bilanz-cell">Rückstellungen</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(rueckstellungen)}</td>
+                    </tr>
+                    <tr class="bilanz-row">
+                        <td class="bilanz-cell">Verbindlichkeiten</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(verbindlichkeiten)}</td>
+                    </tr>
+                    <tr class="bilanz-row bilanz-total">
+                        <td class="bilanz-cell">Passiva Gesamt</td>
+                        <td class="bilanz-cell bilanz-value">${formatCurrency(passiva)}</td>
+                    </tr>
+                </table>
+            `;
+
+            if (difference !== 0) {
+                resultHTML += `<p>Achtung: Die Bilanz ist nicht ausgeglichen. Differenz: ${formatCurrency(Math.abs(difference))}</p>`;
+            }
+
+            var resultElement = document.getElementById('result');
+            resultElement.innerHTML = resultHTML;
+            resultElement.classList.remove('visible');
+            setTimeout(() => {
+                resultElement.classList.add('visible');
+            }, 10);
+        }
+    </script>
+</body>
+</html>
+
